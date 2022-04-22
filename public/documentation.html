@@ -38,7 +38,27 @@
             <td>GET</td>
             <td>:name</td>
             <td>None</td>
-            <td>A JSON object holding data about a specific movie including the description, genre, director, year of release.</td>
+            <td>A JSON object holding data about a specific movie including the description, genre, director, actors, image, and whether or not they are featured. Example:
+              <pre>
+                <code>
+                  {
+                    "Title": "MacGruber",
+                    "Description": "MacGruber is a comedy film about...",
+                    "Genre": {
+                      "Name": "Comedy",
+                      "Description": "Comedy is a...",
+                    },
+                    "Director": {
+                      "Name": "Jorma Taccone",
+                      "Bio": "Jorma Taccone is..."
+                    },
+                    "Actors": ["Will Forte", "Kristen Wiig"],
+                    "ImagePath": "macgruber.png",
+                    "Featured": True
+                  }
+                </code>
+              </pre>
+            </td>
           </tr>
           <tr>
             <td>Get data about a specific genre.</td>
@@ -46,15 +66,33 @@
             <td>GET</td>
             <td>:name</td>
             <td>None</td>
-            <td>A JSON object holding a description of a specific genre.</td>
+            <td>A JSON object holding a description of a specific genre. Example:
+              <pre>
+                <code>
+                  {
+                    "Name": "Comedy",
+                    "Description": "Comedy is a..."
+                  }
+                </code>
+              </pre>
+            </td>
           </tr>
           <tr>
-            <td>Get data about an actor/actress</td>
-            <td>movies/starring/[actor's name]</td>
+            <td>Get data about a director</td>
+            <td>/movies/director/[director's name]</td>
             <td>GET</td>
             <td>:name</td>
             <td>None</td>
-            <td>A JSON object holding data about an actor including their name birth year, death year (if applicable).</td>
+            <td>A JSON object holding data about a director including their name and a Bio. Example:
+              <pre>
+                <code>
+                  {
+                    "Name": "Richard Kelly",
+                    "Bio": "James Richard Kelly is..."
+                  }
+                </code>
+              </pre>
+            </td>
           </tr>
           <tr>
             <td>Allow a user to register.</td>
@@ -62,12 +100,17 @@
             <td>POST</td>
             <td>None</td>
             <td>A JSON object holding data about a user to be added. Example:
-              <code>
-                {
-                  "name": "Michael"
-                  "favoriteMovies": []
-                }
-              </code>
+              <pre>
+                <code>
+                  {
+                    "Username": "Michael",
+                    "Password": "Michael",
+                    "Email": "Michael@michael.com",
+                    "Birthday": "01-01-1919",
+                    "favoriteMovies": []
+                  }
+                </code>
+              <pre>
             </td>
             <td>A JSON object holding data about the user just added.</td>
           </tr>
@@ -77,22 +120,30 @@
             <td>PUT</td>
             <td>:id</td>
             <td>A JSON object with the updated username. Example:
-              <code>
-                {
-                  "id": 1,
-                  "name": "Andrea Updated",
-                  "favoriteMovies": []
-                }
-              </code>
+               <pre> 
+                <code>
+                    {
+                      "Username": "Andrea Updated",
+                      "Password": "Andrea",
+                      "Email": "Andrea@andrea.com",
+                      "Birthday": "01-01-1916",
+                      "favoriteMovies": []
+                    }
+                  </code>
+                </pre>
             </td>
             <td>A JSON object with updated username. Example:
-              <code>
-                {
-                  "id": 1,
-                  "name": "Andrea Updated",
-                  "favoriteMovies": []
-                }
-              </code>
+              <pre>
+                <code>
+                  {
+                    "Username": "Andrea Updated",
+                    "Password": "Andrea",
+                    "Email": "Andrea@andrea.com",
+                    "Birthday": "01-01-1916",
+                    "favoriteMovies": []
+                  }
+                </code>
+              </pre>            
             </td>
           </tr>
           <tr>
@@ -117,7 +168,7 @@
             <td>DELETE</td>
             <td>:id</td>
             <td>None</td>
-            <td>A message confirming the user's email has been removed.</td>
+            <td>A text message confirming the user's email has been removed.</td>
           </tr>
         </tbody>
       </table>
