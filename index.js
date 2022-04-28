@@ -16,11 +16,14 @@ const express = require('express'),
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const cors =  require('cors');
+app.use(cors());
 let auth = require('./auth')(app);
 
 const passport = require('passport');
 require('./passport');
 
+const { check, validationResult } = require('express-validator'); //if API fails check this section
 
 //middleware
 app.use(morgan('common'));
@@ -34,8 +37,21 @@ app.get('/', (req, res) => {
 
 //CREATE SECTION
 
-app.post('/users', passport.authenticate('jwt', {session: false}),
-(req, res) => {
+app.post('/users', 
+[
+  check('Username', 'Username is required fool!').isLength({min:5}),
+  check('Username', 'Username contains non alphanumeric characters - we do not play that here...').isAlphanumeric(),
+  check('Password', 'Password is required, come on man.').not().isEmpty(),
+  check('Email', 'Email does not appear to be valid, and I do not appear to be pleased.').isEmail()
+], (req, res) => {
+
+  let errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array()});
+  }
+
+  let hashedPassword = Users.hashPassword(req.body.Password);
   Users.findOne({ Username: req.body.Username })
   .then((user) => {
     if (user) {
@@ -44,7 +60,7 @@ app.post('/users', passport.authenticate('jwt', {session: false}),
       Users
       .create({
         Username: req.body.Username,
-        Password: req.body.Password,
+        Password: hashedPassword,
         Email: req.body.Email,
         Birthday: req.body.Birthday
       })
@@ -139,7 +155,46 @@ app.get('/movies/genre/:Name', passport.authenticate('jwt', {session: false}),
 
 //UPDATE SECTION
 
-app.put('/users/:Username', passport.authenticate('jwt', {session: false}),
+app.put('/users/:Username', 
+[
+  check('Username', 'Username is required fool!').isLength({min:5}),
+  check('Username', 'Username contains non alphanumeric characters - we do not play that here...').isAlphanumeric(),
+  check('Password', 'Password is required, come on man.').not().isEmpty(),
+  check('Email', 'Email does not appear to be valid, and I do not appear to be pleased.').isEmail()
+], (req, res) => {
+
+  let errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array()});
+  }
+
+  let hashedPassword = Users.hashPassword(req.body.Password);
+  Users.findOne({ Username: req.body.Username })
+  .then((user) => {
+    if (user) {
+      return res.status(400).send(req.body.Username + 'already exists');
+    } else {
+      Users
+      .create({
+        Username: req.body.Username,
+        Password: hashedPassword,
+        Email: req.body.Email,
+        Birthday: req.body.Birthday
+      })
+      .then((user) => {res.status(201).json(user)})
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      }) 
+    }
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
+});
+
  (req, res) => {
   Users.findOneAndUpdate({ Username : req.params.Username}, 
     {$set: { 
@@ -157,7 +212,7 @@ app.put('/users/:Username', passport.authenticate('jwt', {session: false}),
       console.error(err);
       res.status(500).send('Error: ' + err);
     });
-});
+};
 
 //DELETE SECTION
 
@@ -201,7 +256,8 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
   });
 
-app.listen(8080, () => {
-  console.log('Your app is listening on port 8080.');
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0',()=> {
+  console.log('Listening on Port ' + port);
 });
 
