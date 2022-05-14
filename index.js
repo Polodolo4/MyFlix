@@ -155,6 +155,18 @@ app.get('/movies/genre/:Name', passport.authenticate('jwt', {session: false}),
     });
   });
 
+  app.get('/users:Username', passport.authenticate('jwt', {session: false}),
+   (req, res) => {
+    Users.findOne({Username: req.params.Username})
+    .then((user) => {
+      res.status(201).json(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    });
+  });
+
 //UPDATE SECTION
 
 app.put('/users/:Username', 
