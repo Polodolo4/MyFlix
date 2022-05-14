@@ -169,7 +169,7 @@ app.get('/movies/genre/:Name', passport.authenticate('jwt', {session: false}),
 
 //UPDATE SECTION
 
-app.put('/users/:Username', 
+app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
 [
   check('Username', 'Username is required fool!').isLength({min:5}),
   check('Username', 'Username contains non alphanumeric characters - we do not play that here...').isAlphanumeric(),
@@ -177,36 +177,25 @@ app.put('/users/:Username',
   check('Email', 'Email does not appear to be valid, and I do not appear to be pleased.').isEmail()
 ], (req, res) => {
 
-  let errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array()});
-  }
-
   let hashedPassword = Users.hashPassword(req.body.Password);
-  Users.findOne({ Username: req.body.Username })
-  .then((user) => {
-    if (user) {
-      return res.status(400).send(req.body.Username + 'already exists');
-    } else {
-      Users
-      .create({
-        Username: req.body.Username,
-        Password: hashedPassword,
-        Email: req.body.Email,
-        Birthday: req.body.Birthday
-      })
-      .then((user) => {res.status(201).json(user)})
-      .catch((err) => {
+  Users.findOneAndUpdate({ Username: req.body.Username }, {
+    $set:
+    {
+      Username: req.body.Username,
+      Password: hashedPassword,
+      Email: req.body.Email,
+      Birthday: req.body.Birthday
+    }
+  },
+    { new: true }, 
+    (err, updatedUser) => {
+      if (err) {
         console.error(err);
         res.status(500).send('Error: ' + err);
-      }) 
-    }
-  })
-  .catch((err) => {
-    console.error(err);
-    res.status(500).send('Error: ' + err);
-  });
+      } else {
+        res.json(updatedUser);
+      }
+    });
 });
 
  (req, res) => {
